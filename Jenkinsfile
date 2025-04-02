@@ -2,33 +2,40 @@ pipeline {
 	agent any
 
     tools {
-		maven 'Maven 3.8.6'
-        jdk 'jdk-17'
+		maven 'Maven 3.9.2'
+        jdk 'Java 17'
     }
 
     stages {
-		stage('Clone') {
+		stage('Checkout') {
 			steps {
-				git branch: 'main', url: 'https://github.com/eliz-yarko/laba4-jenkins.git'
+				git url: 'https://github.com/eliz-yarko/laba4-jenkins.git', branch: 'main'
             }
         }
 
         stage('Build') {
 			steps {
-				sh 'mvn clean package'
+				bat 'mvn clean install'
             }
         }
 
         stage('Test') {
 			steps {
-				sh 'mvn test'
+				bat 'mvn test'
             }
         }
 
-        stage('Report') {
+        stage('Coverage') {
 			steps {
-				sh 'mvn jacoco:report'
+				bat 'mvn jacoco:report'
             }
+        }
+    }
+
+    post {
+		always {
+			junit '**/target/surefire-reports/*.xml'
+            jacoco execPattern: '**/target/jacoco.exec'
         }
     }
 }
